@@ -1,0 +1,30 @@
+service: drone-med-delivery
+provider:
+  name: aws
+  runtime: nodejs18.x
+  timeout: 900
+  region: us-east-1
+  memorySize: 8192
+  environment:
+    DB_HOST: localhost
+    DB_USER: root
+    DB_PASS: 123
+    DB_NAME: drone_delivery
+    REDIS_HOST: 127.0.0.1
+    REDIS_PORT: 6380
+    REDIS_TTL: 3600
+
+functions:
+  app:
+    handler: handler.handler
+    timeout: 900 # Increase timeout to 30 seconds (or more if needed)
+    events:
+      - httpApi: '*'
+  batteryAuditJob:
+    handler: jobs/BatteryAuditJob.flushBatteryAudit
+    events:
+      - schedule: rate(1 minute)
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
